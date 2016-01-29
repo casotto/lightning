@@ -17,7 +17,7 @@ DOWNLOAD_URL = 'https://github.com/mblondel/lightning'
 VERSION = '0.1-git'
 
 import setuptools  # we are using a setuptools namespace
-from numpy.distutils.core import setup
+from setuptools import setup
 
 
 def configuration(parent_package='', top_path=None):
