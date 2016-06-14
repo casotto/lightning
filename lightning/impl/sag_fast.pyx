@@ -111,7 +111,7 @@ cdef class L1Penalty(Penalty):
             reg += fabs(coef[j])
         return reg
 
-
+# computes scalar sparse product
 cdef double _pred(double* data,
                   int* indices,
                   int n_nz,
@@ -212,7 +212,7 @@ def _sag_fit(self,
     cdef int has_callback = callback is not None
 
     # Data pointers.
-    cdef double* data
+    cdef double* data  
     cdef int* indices
     cdef int n_nz
 
@@ -241,7 +241,7 @@ def _sag_fit(self,
     cdef int* last_penalty_update = <int*> last_penalty_.data
     cdef int* all_indices = <int*> all_indices_.data
     cdef double geosum = 1.0
-    cdef bint support_lagged = True
+    cdef bint support_lagged = False
     cdef bint nontrivial_prox = saga and (penalty is not None)
     cdef double square_norm_i = 0.0
     cdef int line_search_freq = 10  # frequency of line search
@@ -292,17 +292,17 @@ def _sag_fit(self,
             X.get_row_ptr(i, &indices, &data, &n_nz)
 
             # Apply missed updates.
-            if t > 0 and support_lagged:
-                if nontrivial_prox:
-                    # SAGA with non-trivial prox
-                    penalty.projection_lagged(
-                        t, w, g_sum, indices, beta * eta / w_scale[0],
-                        eta_avg / w_scale[0], geom_sum, n_nz, last,
-                        scaling_seq)
-                else:
-                    # SAG or SAGA with trivial prox
-                    _lagged_update(t, w, g_sum, geom_sum, scaling_seq,
-                                   indices, n_nz, last, eta_avg / w_scale[0])
+            # if t > 0 and support_lagged:
+            #     if nontrivial_prox:
+            #         # SAGA with non-trivial prox
+            #         penalty.projection_lagged(
+            #             t, w, g_sum, indices, beta * eta / w_scale[0],
+            #             eta_avg / w_scale[0], geom_sum, n_nz, last,
+            #             scaling_seq)
+            #     else:
+            #         # SAG or SAGA with trivial prox
+            #         _lagged_update(t, w, g_sum, geom_sum, scaling_seq,
+            #                        indices, n_nz, last, eta_avg / w_scale[0])
 
             # Make prediction.
             y_pred = _pred(data, indices, n_nz, w) * w_scale[0]
@@ -342,15 +342,15 @@ def _sag_fit(self,
 
             if w_scale[0] < 1e-10:
                 # bring coordinates up to date
-                if support_lagged:
-                    if nontrivial_prox:
-                        penalty.projection_lagged(
-                            t, w, g_sum, all_indices, beta * eta / w_scale[0],
-                            eta_avg / w_scale[0], geom_sum, n_features, last,
-                            scaling_seq)
-                    else:
-                        _lagged_update(t, w, g_sum, geom_sum, scaling_seq,
-                                       all_indices, n_features, last, eta_avg / w_scale[0])
+                # if support_lagged:
+                #     if nontrivial_prox:
+                #         penalty.projection_lagged(
+                #             t, w, g_sum, all_indices, beta * eta / w_scale[0],
+                #             eta_avg / w_scale[0], geom_sum, n_features, last,
+                #             scaling_seq)
+                #     else:
+                #         _lagged_update(t, w, g_sum, geom_sum, scaling_seq,
+                #                        all_indices, n_features, last, eta_avg / w_scale[0])
                 # rescale features
                 for j in range(n_features):
                     w[j] *= w_scale[0]
@@ -367,14 +367,14 @@ def _sag_fit(self,
                 # update w with sparse step bit
                 _add(data, indices, n_nz, -g_change * eta / w_scale[0], w)
 
-                if support_lagged:
-                    # gradient-average part of the step
-                    _lagged_update(t + 1, w, g_sum, geom_sum, scaling_seq,
-                                   indices, n_nz, last, eta_avg / w_scale[0])
-                    if nontrivial_prox:
-                        # prox update
-                        penalty.projection(w, indices, beta * eta / w_scale[0],
-                                           n_nz)
+                # if support_lagged:
+                #     # gradient-average part of the step
+                #     _lagged_update(t + 1, w, g_sum, geom_sum, scaling_seq,
+                #                    indices, n_nz, last, eta_avg / w_scale[0])
+                #     if nontrivial_prox:
+                #         # prox update
+                #         penalty.projection(w, indices, beta * eta / w_scale[0],
+                #                            n_nz)
                 else:
                     # gradient-average part of the step
                     # could be an _add instead of a _lagged update since we are not
@@ -391,15 +391,15 @@ def _sag_fit(self,
 
 
         # Finalize.
-        if support_lagged:
-            if nontrivial_prox:
-                penalty.projection_lagged(
-                    n_inner, w, g_sum, all_indices, beta * eta / w_scale[0],
-                    eta_avg / w_scale[0], geom_sum, n_features, last,
-                    scaling_seq)
-            else:
-                _lagged_update(n_inner, w, g_sum, geom_sum, scaling_seq,
-                               all_indices, n_features, last, eta_avg / w_scale[0])
+        # if support_lagged:
+        #     if nontrivial_prox:
+        #         penalty.projection_lagged(
+        #             n_inner, w, g_sum, all_indices, beta * eta / w_scale[0],
+        #             eta_avg / w_scale[0], geom_sum, n_features, last,
+        #             scaling_seq)
+        #     else:
+        #         _lagged_update(n_inner, w, g_sum, geom_sum, scaling_seq,
+        #                        all_indices, n_features, last, eta_avg / w_scale[0])
 
         for j in range(n_features):
             w[j] *= w_scale[0]
