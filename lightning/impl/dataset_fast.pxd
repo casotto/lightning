@@ -84,3 +84,19 @@ cdef class CSCDataset(ColumnDataset):
                              int** indices,
                              double** data,
                              int* n_nz) nogil
+
+
+cdef class EncodedDataset(RowDataset):
+
+    cdef int* indices
+    cdef double* data
+    cdef object X
+    cdef int n_nz
+
+    cdef void get_row_ptr(self,
+                          int i,
+                          int** indices,
+                          double** data,
+                          int* n_nz) nogil
+
+

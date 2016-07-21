@@ -193,6 +193,49 @@ cdef class CSCDataset(ColumnDataset):
         n_nz[0] = self.indptr[j + 1] - self.indptr[j]
 
 
+
+cdef class EncodedDataset(RowDataset):
+
+    def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):
+        self.n_samples = X.shape[0]
+        self.n_nz = X.shape[1]
+        self.indices = <int*> X.data
+        # TODO: clean this
+        # +1 since the first value is set to zero.
+        self.n_features = <int> np.max(X) + 1
+        self.X = X
+
+
+        print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features
+
+    def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X):
+        cdef int j
+        cdef int n_nz = X.shape[1]
+        self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)
+        for j in xrange(n_nz):
+            self.data[j] = 1.
+
+    def __dealloc__(self):
+        stdlib.free(self.data)
+
+    # This is used to reconstruct the object in order to make it picklable.
+    def __reduce__(self):
+        return (EncodedDataset, (self.X, ))
+
+    cdef void get_row_ptr(self,
+                          int i,
+                          int** indices,
+                          double** data,
+                          int* n_nz) nogil:
+        indices[0] = self.indices + i * self.n_nz
+        data[0] = self.data
+        n_nz[0] = self.n_nz
+
+
+
+
+
+
 def get_dataset(X, order="c"):
     if isinstance(X, Dataset):
         return X
