@@ -204,7 +204,7 @@ cdef class EncodedDataset(RowDataset):
         # +1 since the first value is set to zero.
         self.n_features = <int> np.max(X) + 1
         self.X = X
-
+        print "hello!"
 
         print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features
 
