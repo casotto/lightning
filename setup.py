@@ -23,19 +23,19 @@ DOWNLOAD_URL = 'https://github.com/scikit-learn-contrib/lightning'
 VERSION = '0.4.dev0'
 
 extensions = [
-    Extension("lightning.impl.adagrad_fast", ["lightning/impl/adagrad_fast.pyx"]),
-    Extension("lightning.impl.dataset_fast", ["lightning/impl/dataset_fast.pyx"]),
-    Extension("lightning.impl.dual_cd_fast", ["lightning/impl/dual_cd_fast.pyx"]),
-    Extension("lightning.impl.loss_fast", ["lightning/impl/loss_fast.pyx"]),
-    Extension("lightning.impl.prank_fast", ["lightning/impl/prank_fast.pyx"]),
-    Extension("lightning.impl.primal_cd_fast", ["lightning/impl/primal_cd_fast.pyx"]),
-    Extension("lightning.impl.prox_fast", ["lightning/impl/prox_fast.pyx"]),
-    Extension("lightning.impl.sag_fast", ["lightning/impl/sag_fast.pyx"]),
-    Extension("lightning.impl.sdca_fast", ["lightning/impl/sdca_fast.pyx"]),
-    Extension("lightning.impl.sgd_fast", ["lightning/impl/sgd_fast.pyx"]),
-    Extension("lightning.impl.svrg_fast", ["lightning/impl/svrg_fast.pyx"]),
-    Extension("lightning.impl.randomkit.random_fast", ["lightning/impl/randomkit/random_fast.pyx",
-                                                       "lightning/impl/randomkit/randomkit.c"])
+    Extension("lightning.impl.adagrad_fast", sources = ["lightning/impl/adagrad_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.dataset_fast", sources =["lightning/impl/dataset_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.dual_cd_fast", sources =["lightning/impl/dual_cd_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.loss_fast", sources =["lightning/impl/loss_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.prank_fast", sources =["lightning/impl/prank_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.primal_cd_fast", sources =["lightning/impl/primal_cd_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.prox_fast", sources =["lightning/impl/prox_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.sag_fast", sources =["lightning/impl/sag_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.sdca_fast", sources =["lightning/impl/sdca_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.sgd_fast", sources =["lightning/impl/sgd_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.svrg_fast", sources =["lightning/impl/svrg_fast.pyx"], language = "c++"),
+    Extension("lightning.impl.randomkit.random_fast", sources =["lightning/impl/randomkit/random_fast.pyx",
+                                                       "lightning/impl/randomkit/randomkit.c"], language = "c++")
     ]
 
 

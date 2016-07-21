@@ -231,6 +231,36 @@ cdef class EncodedDataset(RowDataset):
         data[0] = self.data
         n_nz[0] = self.n_nz
 
+    def dot(self, np.ndarray[double, ndim = 1, mode = 'c'] coef):
+        cdef double* coef_ptr, results_ptr
+        cdef np.ndarray result
+        cdef int n_obs
+
+        coef_ptr = <double*> coef.data
+        if coef.shape[0]!= self.n_features:
+            raise ValueError("coef and dataset have different shapes")
+        result = np.empty(self.n_samples)
+        result_ptr = <double*> result.data
+        self.inplace_dot(coef_ptr,result_ptr, self.n_samples)
+        return result
+
+    cdef void inplace_dot(self,
+                          double* coef_ptr,
+                          double* result_ptr,
+                          int n_obs) nogil:
+        cdef int i, j, jj
+        cdef double tmp
+        cdef double* data
+        cdef int* indices
+        cdef int n_nz
+
+        for i in xrange(n_obs):
+            tmp = 0
+            self.get_row_ptr(i, &indices, &data, &n_nz)
+            for jj in xrange(n_nz):
+                j = indices[jj]
+                tmp += coef_ptr[j]
+            result_ptr[i] = tmp
 
 
 
