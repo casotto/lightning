@@ -194,15 +194,16 @@ cdef class CSCDataset(ColumnDataset):
 
 
 
+
 cdef class EncodedDataset(RowDataset):
     # TODO: add checks for sub_indexes. Add default values for sub_indexes
     def __init__(self,
                  np.ndarray[int, ndim=2, mode='c'] X,
-                 np.ndarray[np.int64_t, ndim=1, mode='c'] sub_indexes ):
+                 np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
         self.n_samples = sub_indexes.shape[0]
         self.n_nz = X.shape[1]
         self.indices = <int*> X.data
-        self.sub_indexes_ptr = <int*> sub_indexes.data
+        # self.sub_indexes_ptr = <int*> sub_indexes.data
         # TODO: clean this
         # +1 since the first value is set to zero.
         self.n_features = <int> np.max(X) + 1
@@ -214,13 +215,22 @@ cdef class EncodedDataset(RowDataset):
     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X,
                     np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
         cdef int j
+        # cdef np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes
         cdef int n_nz = X.shape[1]
+        cdef int n_indexes = sub_indexes.shape[0]
+        cdef int* indexes_ptr
+        indexes_ptr = <int*> sub_indexes.data
+
         self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)
+        self.sub_indexes_ptr = <int*> stdlib.malloc(sizeof(int) * n_indexes)
         for j in xrange(n_nz):
             self.data[j] = 1.
+        for j in xrange(n_indexes):
+            self.sub_indexes_ptr[j] = indexes_ptr[j]
 
     def __dealloc__(self):
         stdlib.free(self.data)
+        stdlib.free(self.sub_indexes_ptr)
 
 
     # This is used to reconstruct the object in order to make it picklable.
@@ -268,7 +278,6 @@ cdef class EncodedDataset(RowDataset):
                 j = indices[jj]
                 tmp += coef_ptr[j]
             result_ptr[i] = tmp
-
 
 
 

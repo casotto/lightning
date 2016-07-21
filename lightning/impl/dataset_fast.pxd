@@ -86,6 +86,7 @@ cdef class CSCDataset(ColumnDataset):
                              int* n_nz) nogil
 
 
+
 cdef class EncodedDataset(RowDataset):
 
     cdef int* indices
@@ -100,7 +101,6 @@ cdef class EncodedDataset(RowDataset):
                           double** data,
                           int* n_nz) nogil
 
-	
     cdef void inplace_dot(self,
                           double* coef_ptr,
                           double* result_ptr,

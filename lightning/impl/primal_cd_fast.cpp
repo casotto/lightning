@@ -912,7 +912,7 @@ struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset {
 };
 
 
-/* "lightning\impl\dataset_fast.pxd":89
+/* "lightning\impl\dataset_fast.pxd":90
  * 
  * 
  * cdef class EncodedDataset(RowDataset):             # <<<<<<<<<<<<<<
@@ -1124,7 +1124,7 @@ struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSCDataset {
 static struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSCDataset *__pyx_vtabptr_9lightning_4impl_12dataset_fast_CSCDataset;
 
 
-/* "lightning\impl\dataset_fast.pxd":89
+/* "lightning\impl\dataset_fast.pxd":90
  * 
  * 
  * cdef class EncodedDataset(RowDataset):             # <<<<<<<<<<<<<<
@@ -14281,8 +14281,8 @@ PyMODINIT_FUNC PyInit_primal_cd_fast(void)
   __pyx_vtabptr_9lightning_4impl_12dataset_fast_CSRDataset = (struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSRDataset*)__Pyx_GetVtable(__pyx_ptype_9lightning_4impl_12dataset_fast_CSRDataset->tp_dict); if (unlikely(!__pyx_vtabptr_9lightning_4impl_12dataset_fast_CSRDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 61; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_ptype_9lightning_4impl_12dataset_fast_CSCDataset = __Pyx_ImportType("lightning.impl.dataset_fast", "CSCDataset", sizeof(struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset), 1); if (unlikely(!__pyx_ptype_9lightning_4impl_12dataset_fast_CSCDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 75; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_vtabptr_9lightning_4impl_12dataset_fast_CSCDataset = (struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSCDataset*)__Pyx_GetVtable(__pyx_ptype_9lightning_4impl_12dataset_fast_CSCDataset->tp_dict); if (unlikely(!__pyx_vtabptr_9lightning_4impl_12dataset_fast_CSCDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 75; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset = __Pyx_ImportType("lightning.impl.dataset_fast", "EncodedDataset", sizeof(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset), 1); if (unlikely(!__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_vtabptr_9lightning_4impl_12dataset_fast_EncodedDataset = (struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset*)__Pyx_GetVtable(__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset->tp_dict); if (unlikely(!__pyx_vtabptr_9lightning_4impl_12dataset_fast_EncodedDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 89; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset = __Pyx_ImportType("lightning.impl.dataset_fast", "EncodedDataset", sizeof(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset), 1); if (unlikely(!__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 90; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_vtabptr_9lightning_4impl_12dataset_fast_EncodedDataset = (struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset*)__Pyx_GetVtable(__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset->tp_dict); if (unlikely(!__pyx_vtabptr_9lightning_4impl_12dataset_fast_EncodedDataset)) {__pyx_filename = __pyx_f[4]; __pyx_lineno = 90; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   /*--- Variable import code ---*/
   /*--- Function import code ---*/
   /*--- Execution code ---*/
