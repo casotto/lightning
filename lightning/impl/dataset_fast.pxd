@@ -89,6 +89,7 @@ cdef class CSCDataset(ColumnDataset):
 cdef class EncodedDataset(RowDataset):
 
     cdef int* indices
+    cdef int* sub_indexes_ptr
     cdef double* data
     cdef object X
     cdef int n_nz

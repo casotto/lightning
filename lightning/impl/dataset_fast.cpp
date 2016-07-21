@@ -894,6 +894,7 @@ struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset {
 struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset {
   struct __pyx_obj_9lightning_4impl_12dataset_fast_RowDataset __pyx_base;
   int *indices;
+  int *sub_indexes_ptr;
   double *data;
   PyObject *X;
   int n_nz;
@@ -1008,8 +1009,8 @@ static struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSCDataset *__pyx
  * 
  * 
  * cdef class EncodedDataset(RowDataset):             # <<<<<<<<<<<<<<
- * 
- *     def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):
+ *     # TODO: add checks for sub_indexes. Add default values for sub_indexes
+ *     def __init__(self,
  */
 
 struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset {
@@ -1266,8 +1267,6 @@ static PyObject* __pyx_print = 0;
 static PyObject* __pyx_print_kwargs = 0;
 #endif
 
-static int __Pyx_PrintOne(PyObject* stream, PyObject *o);
-
 #if CYTHON_CCOMPLEX
   #ifdef __cplusplus
     #define __Pyx_CREAL(z) ((z).real())
@@ -1481,7 +1480,6 @@ static char __pyx_k_n_nz[] = "n_nz";
 static char __pyx_k_test[] = "__test__";
 static char __pyx_k_dtype[] = "dtype";
 static char __pyx_k_empty[] = "empty";
-static char __pyx_k_hello[] = "hello!";
 static char __pyx_k_numpy[] = "numpy";
 static char __pyx_k_order[] = "order";
 static char __pyx_k_print[] = "print";
@@ -1503,6 +1501,7 @@ static char __pyx_k_isspmatrix[] = "isspmatrix";
 static char __pyx_k_n_features[] = "n_features";
 static char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static char __pyx_k_get_dataset[] = "get_dataset";
+static char __pyx_k_sub_indexes[] = "sub_indexes";
 static char __pyx_k_RuntimeError[] = "RuntimeError";
 static char __pyx_k_scipy_sparse[] = "scipy.sparse";
 static char __pyx_k_get_n_samples[] = "get_n_samples";
@@ -1543,7 +1542,6 @@ static PyObject *__pyx_n_s_get_dataset;
 static PyObject *__pyx_n_s_get_n_features;
 static PyObject *__pyx_n_s_get_n_samples;
 static PyObject *__pyx_n_s_get_row;
-static PyObject *__pyx_kp_s_hello;
 static PyObject *__pyx_n_s_import;
 static PyObject *__pyx_n_s_indices;
 static PyObject *__pyx_n_s_indptr;
@@ -1565,6 +1563,7 @@ static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_scipy_sparse;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_sp;
+static PyObject *__pyx_n_s_sub_indexes;
 static PyObject *__pyx_n_s_test;
 static PyObject *__pyx_n_s_tocsc;
 static PyObject *__pyx_n_s_tocsr;
@@ -1586,8 +1585,8 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_10CSRDataset___init__(struct
 static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_10CSRDataset_2__reduce__(struct __pyx_obj_9lightning_4impl_12dataset_fast_CSRDataset *__pyx_v_self); /* proto */
 static int __pyx_pf_9lightning_4impl_12dataset_fast_10CSCDataset___init__(struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset *__pyx_v_self, PyObject *__pyx_v_X); /* proto */
 static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_10CSCDataset_2__reduce__(struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset *__pyx_v_self); /* proto */
-static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
-static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X); /* proto */
+static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X, PyArrayObject *__pyx_v_sub_indexes); /* proto */
+static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X, CYTHON_UNUSED PyArrayObject *__pyx_v_sub_indexes); /* proto */
 static void __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_4__dealloc__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__reduce__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self); /* proto */
 static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_coef); /* proto */
@@ -4068,16 +4067,17 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_10CSCDataset_get_column_ptr(
 
 /* "lightning\impl\dataset_fast.pyx":199
  * cdef class EncodedDataset(RowDataset):
- * 
- *     def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):             # <<<<<<<<<<<<<<
- *         self.n_samples = X.shape[0]
- *         self.n_nz = X.shape[1]
+ *     # TODO: add checks for sub_indexes. Add default values for sub_indexes
+ *     def __init__(self,             # <<<<<<<<<<<<<<
+ *                  np.ndarray[int, ndim=2, mode='c'] X,
+ *                  np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
  */
 
 /* Python wrapper */
 static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_1__init__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_X = 0;
+  PyArrayObject *__pyx_v_sub_indexes = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -4085,12 +4085,13 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_1__init__(P
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__init__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_X,0};
-    PyObject* values[1] = {0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_X,&__pyx_n_s_sub_indexes,0};
+    PyObject* values[2] = {0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
@@ -4100,27 +4101,35 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_1__init__(P
         case  0:
         if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_X)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sub_indexes)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
       }
       if (unlikely(kw_args > 0)) {
         if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__init__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_X = ((PyArrayObject *)values[0]);
+    __pyx_v_sub_indexes = ((PyArrayObject *)values[1]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__init__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("__init__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("lightning.impl.dataset_fast.EncodedDataset.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(((struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self), __pyx_v_X);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 200; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sub_indexes), __pyx_ptype_5numpy_ndarray, 1, "sub_indexes", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 201; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_r = __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(((struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self), __pyx_v_X, __pyx_v_sub_indexes);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4131,9 +4140,11 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_1__init__(P
   return __pyx_r;
 }
 
-static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X) {
+static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X, PyArrayObject *__pyx_v_sub_indexes) {
   __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
   __Pyx_Buffer __pyx_pybuffer_X;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_sub_indexes;
+  __Pyx_Buffer __pyx_pybuffer_sub_indexes;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
@@ -4149,49 +4160,67 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(st
   __pyx_pybuffer_X.refcount = 0;
   __pyx_pybuffernd_X.data = NULL;
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
+  __pyx_pybuffer_sub_indexes.pybuffer.buf = NULL;
+  __pyx_pybuffer_sub_indexes.refcount = 0;
+  __pyx_pybuffernd_sub_indexes.data = NULL;
+  __pyx_pybuffernd_sub_indexes.rcbuffer = &__pyx_pybuffer_sub_indexes;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
     if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer, (PyObject*)__pyx_v_sub_indexes, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 199; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_pybuffernd_sub_indexes.diminfo[0].strides = __pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_sub_indexes.diminfo[0].shape = __pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer.shape[0];
 
-  /* "lightning\impl\dataset_fast.pyx":200
- * 
- *     def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):
- *         self.n_samples = X.shape[0]             # <<<<<<<<<<<<<<
+  /* "lightning\impl\dataset_fast.pyx":202
+ *                  np.ndarray[int, ndim=2, mode='c'] X,
+ *                  np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
+ *         self.n_samples = sub_indexes.shape[0]             # <<<<<<<<<<<<<<
  *         self.n_nz = X.shape[1]
  *         self.indices = <int*> X.data
  */
-  __pyx_v_self->__pyx_base.__pyx_base.n_samples = (__pyx_v_X->dimensions[0]);
+  __pyx_v_self->__pyx_base.__pyx_base.n_samples = (__pyx_v_sub_indexes->dimensions[0]);
 
-  /* "lightning\impl\dataset_fast.pyx":201
- *     def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):
- *         self.n_samples = X.shape[0]
+  /* "lightning\impl\dataset_fast.pyx":203
+ *                  np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
+ *         self.n_samples = sub_indexes.shape[0]
  *         self.n_nz = X.shape[1]             # <<<<<<<<<<<<<<
  *         self.indices = <int*> X.data
- *         # TODO: clean this
+ *         self.sub_indexes_ptr = <int*> sub_indexes.data
  */
   __pyx_v_self->n_nz = (__pyx_v_X->dimensions[1]);
 
-  /* "lightning\impl\dataset_fast.pyx":202
- *         self.n_samples = X.shape[0]
+  /* "lightning\impl\dataset_fast.pyx":204
+ *         self.n_samples = sub_indexes.shape[0]
  *         self.n_nz = X.shape[1]
  *         self.indices = <int*> X.data             # <<<<<<<<<<<<<<
+ *         self.sub_indexes_ptr = <int*> sub_indexes.data
  *         # TODO: clean this
- *         # +1 since the first value is set to zero.
  */
   __pyx_v_self->indices = ((int *)__pyx_v_X->data);
 
   /* "lightning\impl\dataset_fast.pyx":205
+ *         self.n_nz = X.shape[1]
+ *         self.indices = <int*> X.data
+ *         self.sub_indexes_ptr = <int*> sub_indexes.data             # <<<<<<<<<<<<<<
+ *         # TODO: clean this
+ *         # +1 since the first value is set to zero.
+ */
+  __pyx_v_self->sub_indexes_ptr = ((int *)__pyx_v_sub_indexes->data);
+
+  /* "lightning\impl\dataset_fast.pyx":208
  *         # TODO: clean this
  *         # +1 since the first value is set to zero.
  *         self.n_features = <int> np.max(X) + 1             # <<<<<<<<<<<<<<
  *         self.X = X
- *         print "hello!"
+ * 
  */
-  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_max); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_max); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -4205,29 +4234,29 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(st
     }
   }
   if (!__pyx_t_2) {
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_X)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_t_3, ((PyObject *)__pyx_v_X)); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
   } else {
-    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_4 = PyTuple_New(1+1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_2); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_2); __pyx_t_2 = NULL;
     __Pyx_INCREF(((PyObject *)__pyx_v_X));
     __Pyx_GIVEREF(((PyObject *)__pyx_v_X));
     PyTuple_SET_ITEM(__pyx_t_4, 0+1, ((PyObject *)__pyx_v_X));
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_4, NULL); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 205; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_5 == (int)-1) && PyErr_Occurred())) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 208; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_self->__pyx_base.__pyx_base.n_features = (((int)__pyx_t_5) + 1);
 
-  /* "lightning\impl\dataset_fast.pyx":206
+  /* "lightning\impl\dataset_fast.pyx":209
  *         # +1 since the first value is set to zero.
  *         self.n_features = <int> np.max(X) + 1
  *         self.X = X             # <<<<<<<<<<<<<<
- *         print "hello!"
+ * 
  * 
  */
   __Pyx_INCREF(((PyObject *)__pyx_v_X));
@@ -4236,29 +4265,20 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(st
   __Pyx_DECREF(__pyx_v_self->X);
   __pyx_v_self->X = ((PyObject *)__pyx_v_X);
 
-  /* "lightning\impl\dataset_fast.pyx":207
- *         self.n_features = <int> np.max(X) + 1
- *         self.X = X
- *         print "hello!"             # <<<<<<<<<<<<<<
+  /* "lightning\impl\dataset_fast.pyx":212
  * 
- *         print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features
- */
-  if (__Pyx_PrintOne(0, __pyx_kp_s_hello) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 207; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-
-  /* "lightning\impl\dataset_fast.pyx":209
- *         print "hello!"
  * 
  *         print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features             # <<<<<<<<<<<<<<
  * 
- *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X):
+ *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X,
  */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_samples); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_samples); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->n_nz); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->n_nz); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_features); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_features); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_2 = PyTuple_New(6); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(6); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_n_s_n_samples);
   __Pyx_GIVEREF(__pyx_n_s_n_samples);
@@ -4278,15 +4298,15 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(st
   __pyx_t_1 = 0;
   __pyx_t_3 = 0;
   __pyx_t_4 = 0;
-  if (__Pyx_Print(0, __pyx_t_2, 1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 209; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (__Pyx_Print(0, __pyx_t_2, 1) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 212; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "lightning\impl\dataset_fast.pyx":199
  * cdef class EncodedDataset(RowDataset):
- * 
- *     def __init__(self, np.ndarray[int, ndim=2, mode='c'] X):             # <<<<<<<<<<<<<<
- *         self.n_samples = X.shape[0]
- *         self.n_nz = X.shape[1]
+ *     # TODO: add checks for sub_indexes. Add default values for sub_indexes
+ *     def __init__(self,             # <<<<<<<<<<<<<<
+ *                  np.ndarray[int, ndim=2, mode='c'] X,
+ *                  np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
  */
 
   /* function exit code */
@@ -4300,29 +4320,32 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset___init__(st
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("lightning.impl.dataset_fast.EncodedDataset.__init__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   goto __pyx_L2;
   __pyx_L0:;
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer);
   __pyx_L2:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "lightning\impl\dataset_fast.pyx":211
+/* "lightning\impl\dataset_fast.pyx":214
  *         print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features
  * 
- *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X,             # <<<<<<<<<<<<<<
+ *                     np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
  *         cdef int j
- *         cdef int n_nz = X.shape[1]
  */
 
 /* Python wrapper */
 static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_3__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
 static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_3__cinit__(PyObject *__pyx_v_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_X = 0;
+  CYTHON_UNUSED PyArrayObject *__pyx_v_sub_indexes = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
@@ -4330,12 +4353,13 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_3__cinit__(
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__cinit__ (wrapper)", 0);
   {
-    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_X,0};
-    PyObject* values[1] = {0};
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_X,&__pyx_n_s_sub_indexes,0};
+    PyObject* values[2] = {0,0};
     if (unlikely(__pyx_kwds)) {
       Py_ssize_t kw_args;
       const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
       switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         case  0: break;
         default: goto __pyx_L5_argtuple_error;
@@ -4345,27 +4369,35 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_3__cinit__(
         case  0:
         if (likely((values[0] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_X)) != 0)) kw_args--;
         else goto __pyx_L5_argtuple_error;
+        case  1:
+        if (likely((values[1] = PyDict_GetItem(__pyx_kwds, __pyx_n_s_sub_indexes)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, 1); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "__cinit__") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
-    } else if (PyTuple_GET_SIZE(__pyx_args) != 1) {
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
     } else {
       values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
     }
     __pyx_v_X = ((PyArrayObject *)values[0]);
+    __pyx_v_sub_indexes = ((PyArrayObject *)values[1]);
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 1, 1, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("__cinit__", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("lightning.impl.dataset_fast.EncodedDataset.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return -1;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
-  __pyx_r = __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(((struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self), __pyx_v_X);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_X), __pyx_ptype_5numpy_ndarray, 1, "X", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_sub_indexes), __pyx_ptype_5numpy_ndarray, 1, "sub_indexes", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 215; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_r = __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(((struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self), __pyx_v_X, __pyx_v_sub_indexes);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4376,11 +4408,13 @@ static int __pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_3__cinit__(
   return __pyx_r;
 }
 
-static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X) {
+static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, PyArrayObject *__pyx_v_X, CYTHON_UNUSED PyArrayObject *__pyx_v_sub_indexes) {
   int __pyx_v_j;
   int __pyx_v_n_nz;
   __Pyx_LocalBuf_ND __pyx_pybuffernd_X;
   __Pyx_Buffer __pyx_pybuffer_X;
+  __Pyx_LocalBuf_ND __pyx_pybuffernd_sub_indexes;
+  __Pyx_Buffer __pyx_pybuffer_sub_indexes;
   int __pyx_r;
   __Pyx_RefNannyDeclarations
   int __pyx_t_1;
@@ -4393,14 +4427,23 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
   __pyx_pybuffer_X.refcount = 0;
   __pyx_pybuffernd_X.data = NULL;
   __pyx_pybuffernd_X.rcbuffer = &__pyx_pybuffer_X;
+  __pyx_pybuffer_sub_indexes.pybuffer.buf = NULL;
+  __pyx_pybuffer_sub_indexes.refcount = 0;
+  __pyx_pybuffernd_sub_indexes.data = NULL;
+  __pyx_pybuffernd_sub_indexes.rcbuffer = &__pyx_pybuffer_sub_indexes;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 211; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_X.rcbuffer->pybuffer, (PyObject*)__pyx_v_X, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 2, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_X.diminfo[0].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_X.diminfo[0].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[0]; __pyx_pybuffernd_X.diminfo[1].strides = __pyx_pybuffernd_X.rcbuffer->pybuffer.strides[1]; __pyx_pybuffernd_X.diminfo[1].shape = __pyx_pybuffernd_X.rcbuffer->pybuffer.shape[1];
+  {
+    __Pyx_BufFmt_StackElem __pyx_stack[1];
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer, (PyObject*)__pyx_v_sub_indexes, &__Pyx_TypeInfo_int, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 214; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  }
+  __pyx_pybuffernd_sub_indexes.diminfo[0].strides = __pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_sub_indexes.diminfo[0].shape = __pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer.shape[0];
 
-  /* "lightning\impl\dataset_fast.pyx":213
- *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X):
+  /* "lightning\impl\dataset_fast.pyx":217
+ *                     np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
  *         cdef int j
  *         cdef int n_nz = X.shape[1]             # <<<<<<<<<<<<<<
  *         self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)
@@ -4408,7 +4451,7 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
  */
   __pyx_v_n_nz = (__pyx_v_X->dimensions[1]);
 
-  /* "lightning\impl\dataset_fast.pyx":214
+  /* "lightning\impl\dataset_fast.pyx":218
  *         cdef int j
  *         cdef int n_nz = X.shape[1]
  *         self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)             # <<<<<<<<<<<<<<
@@ -4417,7 +4460,7 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
  */
   __pyx_v_self->data = ((double *)malloc(((sizeof(double)) * __pyx_v_n_nz)));
 
-  /* "lightning\impl\dataset_fast.pyx":215
+  /* "lightning\impl\dataset_fast.pyx":219
  *         cdef int n_nz = X.shape[1]
  *         self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)
  *         for j in xrange(n_nz):             # <<<<<<<<<<<<<<
@@ -4428,7 +4471,7 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_j = __pyx_t_2;
 
-    /* "lightning\impl\dataset_fast.pyx":216
+    /* "lightning\impl\dataset_fast.pyx":220
  *         self.data = <double*> stdlib.malloc(sizeof(double) * n_nz)
  *         for j in xrange(n_nz):
  *             self.data[j] = 1.             # <<<<<<<<<<<<<<
@@ -4438,12 +4481,12 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
     (__pyx_v_self->data[__pyx_v_j]) = 1.;
   }
 
-  /* "lightning\impl\dataset_fast.pyx":211
+  /* "lightning\impl\dataset_fast.pyx":214
  *         print "n_samples",self.n_samples,"n_nz", self.n_nz,"n_features", self.n_features
  * 
- *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X):             # <<<<<<<<<<<<<<
+ *     def __cinit__(self, np.ndarray[int, ndim=2, mode='c'] X,             # <<<<<<<<<<<<<<
+ *                     np.ndarray[int, ndim = 1, mode = 'c'] sub_indexes ):
  *         cdef int j
- *         cdef int n_nz = X.shape[1]
  */
 
   /* function exit code */
@@ -4453,18 +4496,20 @@ static int __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_2__cinit__(
   { PyObject *__pyx_type, *__pyx_value, *__pyx_tb;
     __Pyx_ErrFetch(&__pyx_type, &__pyx_value, &__pyx_tb);
     __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
+    __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer);
   __Pyx_ErrRestore(__pyx_type, __pyx_value, __pyx_tb);}
   __Pyx_AddTraceback("lightning.impl.dataset_fast.EncodedDataset.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = -1;
   goto __pyx_L2;
   __pyx_L0:;
   __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_X.rcbuffer->pybuffer);
+  __Pyx_SafeReleaseBuffer(&__pyx_pybuffernd_sub_indexes.rcbuffer->pybuffer);
   __pyx_L2:;
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "lightning\impl\dataset_fast.pyx":218
+/* "lightning\impl\dataset_fast.pyx":222
  *             self.data[j] = 1.
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4487,16 +4532,16 @@ static void __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_4__dealloc
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__dealloc__", 0);
 
-  /* "lightning\impl\dataset_fast.pyx":219
+  /* "lightning\impl\dataset_fast.pyx":223
  * 
  *     def __dealloc__(self):
  *         stdlib.free(self.data)             # <<<<<<<<<<<<<<
  * 
- *     # This is used to reconstruct the object in order to make it picklable.
+ * 
  */
   free(__pyx_v_self->data);
 
-  /* "lightning\impl\dataset_fast.pyx":218
+  /* "lightning\impl\dataset_fast.pyx":222
  *             self.data[j] = 1.
  * 
  *     def __dealloc__(self):             # <<<<<<<<<<<<<<
@@ -4508,7 +4553,7 @@ static void __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_4__dealloc
   __Pyx_RefNannyFinishContext();
 }
 
-/* "lightning\impl\dataset_fast.pyx":222
+/* "lightning\impl\dataset_fast.pyx":227
  * 
  *     # This is used to reconstruct the object in order to make it picklable.
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -4539,7 +4584,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__re
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__reduce__", 0);
 
-  /* "lightning\impl\dataset_fast.pyx":223
+  /* "lightning\impl\dataset_fast.pyx":228
  *     # This is used to reconstruct the object in order to make it picklable.
  *     def __reduce__(self):
  *         return (EncodedDataset, (self.X, ))             # <<<<<<<<<<<<<<
@@ -4547,12 +4592,12 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__re
  *     cdef void get_row_ptr(self,
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_self->X);
   __Pyx_GIVEREF(__pyx_v_self->X);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_self->X);
-  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 223; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 228; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset));
   __Pyx_GIVEREF(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_EncodedDataset));
@@ -4564,7 +4609,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__re
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "lightning\impl\dataset_fast.pyx":222
+  /* "lightning\impl\dataset_fast.pyx":227
  * 
  *     # This is used to reconstruct the object in order to make it picklable.
  *     def __reduce__(self):             # <<<<<<<<<<<<<<
@@ -4584,7 +4629,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__re
   return __pyx_r;
 }
 
-/* "lightning\impl\dataset_fast.pyx":225
+/* "lightning\impl\dataset_fast.pyx":230
  *         return (EncodedDataset, (self.X, ))
  * 
  *     cdef void get_row_ptr(self,             # <<<<<<<<<<<<<<
@@ -4593,21 +4638,31 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_6__re
  */
 
 static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_get_row_ptr(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_v_self, int __pyx_v_i, int **__pyx_v_indices, double **__pyx_v_data, int *__pyx_v_n_nz) {
+  int __pyx_v_real_i;
   double *__pyx_t_1;
   int __pyx_t_2;
 
-  /* "lightning\impl\dataset_fast.pyx":230
- *                           double** data,
+  /* "lightning\impl\dataset_fast.pyx":236
  *                           int* n_nz) nogil:
- *         indices[0] = self.indices + i * self.n_nz             # <<<<<<<<<<<<<<
+ *         cdef int real_i
+ *         real_i = self.sub_indexes_ptr[i]             # <<<<<<<<<<<<<<
+ *         indices[0] = self.indices + real_i * self.n_nz
+ *         data[0] = self.data
+ */
+  __pyx_v_real_i = (__pyx_v_self->sub_indexes_ptr[__pyx_v_i]);
+
+  /* "lightning\impl\dataset_fast.pyx":237
+ *         cdef int real_i
+ *         real_i = self.sub_indexes_ptr[i]
+ *         indices[0] = self.indices + real_i * self.n_nz             # <<<<<<<<<<<<<<
  *         data[0] = self.data
  *         n_nz[0] = self.n_nz
  */
-  (__pyx_v_indices[0]) = (__pyx_v_self->indices + (__pyx_v_i * __pyx_v_self->n_nz));
+  (__pyx_v_indices[0]) = (__pyx_v_self->indices + (__pyx_v_real_i * __pyx_v_self->n_nz));
 
-  /* "lightning\impl\dataset_fast.pyx":231
- *                           int* n_nz) nogil:
- *         indices[0] = self.indices + i * self.n_nz
+  /* "lightning\impl\dataset_fast.pyx":238
+ *         real_i = self.sub_indexes_ptr[i]
+ *         indices[0] = self.indices + real_i * self.n_nz
  *         data[0] = self.data             # <<<<<<<<<<<<<<
  *         n_nz[0] = self.n_nz
  * 
@@ -4615,8 +4670,8 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_get_row_ptr
   __pyx_t_1 = __pyx_v_self->data;
   (__pyx_v_data[0]) = __pyx_t_1;
 
-  /* "lightning\impl\dataset_fast.pyx":232
- *         indices[0] = self.indices + i * self.n_nz
+  /* "lightning\impl\dataset_fast.pyx":239
+ *         indices[0] = self.indices + real_i * self.n_nz
  *         data[0] = self.data
  *         n_nz[0] = self.n_nz             # <<<<<<<<<<<<<<
  * 
@@ -4625,7 +4680,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_get_row_ptr
   __pyx_t_2 = __pyx_v_self->n_nz;
   (__pyx_v_n_nz[0]) = __pyx_t_2;
 
-  /* "lightning\impl\dataset_fast.pyx":225
+  /* "lightning\impl\dataset_fast.pyx":230
  *         return (EncodedDataset, (self.X, ))
  * 
  *     cdef void get_row_ptr(self,             # <<<<<<<<<<<<<<
@@ -4636,7 +4691,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_get_row_ptr
   /* function exit code */
 }
 
-/* "lightning\impl\dataset_fast.pyx":234
+/* "lightning\impl\dataset_fast.pyx":241
  *         n_nz[0] = self.n_nz
  * 
  *     def dot(self, np.ndarray[double, ndim = 1, mode = 'c'] coef):             # <<<<<<<<<<<<<<
@@ -4653,7 +4708,7 @@ static PyObject *__pyx_pw_9lightning_4impl_12dataset_fast_14EncodedDataset_9dot(
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("dot (wrapper)", 0);
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coef), __pyx_ptype_5numpy_ndarray, 1, "coef", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_coef), __pyx_ptype_5numpy_ndarray, 1, "coef", 0))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_r = __pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(((struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self), ((PyArrayObject *)__pyx_v_coef));
 
   /* function exit code */
@@ -4689,11 +4744,11 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
   __pyx_pybuffernd_coef.rcbuffer = &__pyx_pybuffer_coef;
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_coef.rcbuffer->pybuffer, (PyObject*)__pyx_v_coef, &__Pyx_TypeInfo_double, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 234; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_coef.rcbuffer->pybuffer, (PyObject*)__pyx_v_coef, &__Pyx_TypeInfo_double, PyBUF_FORMAT| PyBUF_C_CONTIGUOUS, 1, 0, __pyx_stack) == -1)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   }
   __pyx_pybuffernd_coef.diminfo[0].strides = __pyx_pybuffernd_coef.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_coef.diminfo[0].shape = __pyx_pybuffernd_coef.rcbuffer->pybuffer.shape[0];
 
-  /* "lightning\impl\dataset_fast.pyx":239
+  /* "lightning\impl\dataset_fast.pyx":246
  *         cdef int n_obs
  * 
  *         coef_ptr = <double*> coef.data             # <<<<<<<<<<<<<<
@@ -4702,7 +4757,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
  */
   __pyx_v_coef_ptr = ((double *)__pyx_v_coef->data);
 
-  /* "lightning\impl\dataset_fast.pyx":240
+  /* "lightning\impl\dataset_fast.pyx":247
  * 
  *         coef_ptr = <double*> coef.data
  *         if coef.shape[0]!= self.n_features:             # <<<<<<<<<<<<<<
@@ -4712,20 +4767,20 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
   __pyx_t_1 = (((__pyx_v_coef->dimensions[0]) != __pyx_v_self->__pyx_base.__pyx_base.n_features) != 0);
   if (__pyx_t_1) {
 
-    /* "lightning\impl\dataset_fast.pyx":241
+    /* "lightning\impl\dataset_fast.pyx":248
  *         coef_ptr = <double*> coef.data
  *         if coef.shape[0]!= self.n_features:
  *             raise ValueError("coef and dataset have different shapes")             # <<<<<<<<<<<<<<
  *         result = np.empty(self.n_samples)
  *         result_ptr = <double*> result.data
  */
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_Raise(__pyx_t_2, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
 
-    /* "lightning\impl\dataset_fast.pyx":240
+    /* "lightning\impl\dataset_fast.pyx":247
  * 
  *         coef_ptr = <double*> coef.data
  *         if coef.shape[0]!= self.n_features:             # <<<<<<<<<<<<<<
@@ -4734,19 +4789,19 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
  */
   }
 
-  /* "lightning\impl\dataset_fast.pyx":242
+  /* "lightning\impl\dataset_fast.pyx":249
  *         if coef.shape[0]!= self.n_features:
  *             raise ValueError("coef and dataset have different shapes")
  *         result = np.empty(self.n_samples)             # <<<<<<<<<<<<<<
  *         result_ptr = <double*> result.data
  *         self.inplace_dot(coef_ptr,result_ptr, self.n_samples)
  */
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_empty); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_empty); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_samples); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_self->__pyx_base.__pyx_base.n_samples); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   if (CYTHON_COMPILING_IN_CPYTHON && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -4759,26 +4814,26 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
     }
   }
   if (!__pyx_t_5) {
-    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_2);
   } else {
-    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5); __pyx_t_5 = NULL;
     __Pyx_GIVEREF(__pyx_t_3);
     PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_t_3);
     __pyx_t_3 = 0;
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_6, NULL); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 242; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 249; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_v_result = ((PyArrayObject *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "lightning\impl\dataset_fast.pyx":243
+  /* "lightning\impl\dataset_fast.pyx":250
  *             raise ValueError("coef and dataset have different shapes")
  *         result = np.empty(self.n_samples)
  *         result_ptr = <double*> result.data             # <<<<<<<<<<<<<<
@@ -4787,7 +4842,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
  */
   __pyx_v_result_ptr = ((double *)__pyx_v_result->data);
 
-  /* "lightning\impl\dataset_fast.pyx":244
+  /* "lightning\impl\dataset_fast.pyx":251
  *         result = np.empty(self.n_samples)
  *         result_ptr = <double*> result.data
  *         self.inplace_dot(coef_ptr,result_ptr, self.n_samples)             # <<<<<<<<<<<<<<
@@ -4796,7 +4851,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
  */
   ((struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self->__pyx_base.__pyx_base.__pyx_vtab)->inplace_dot(__pyx_v_self, __pyx_v_coef_ptr, __pyx_v_result_ptr, __pyx_v_self->__pyx_base.__pyx_base.n_samples);
 
-  /* "lightning\impl\dataset_fast.pyx":245
+  /* "lightning\impl\dataset_fast.pyx":252
  *         result_ptr = <double*> result.data
  *         self.inplace_dot(coef_ptr,result_ptr, self.n_samples)
  *         return result             # <<<<<<<<<<<<<<
@@ -4808,7 +4863,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
   __pyx_r = ((PyObject *)__pyx_v_result);
   goto __pyx_L0;
 
-  /* "lightning\impl\dataset_fast.pyx":234
+  /* "lightning\impl\dataset_fast.pyx":241
  *         n_nz[0] = self.n_nz
  * 
  *     def dot(self, np.ndarray[double, ndim = 1, mode = 'c'] coef):             # <<<<<<<<<<<<<<
@@ -4839,7 +4894,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_14EncodedDataset_8dot(
   return __pyx_r;
 }
 
-/* "lightning\impl\dataset_fast.pyx":247
+/* "lightning\impl\dataset_fast.pyx":254
  *         return result
  * 
  *     cdef void inplace_dot(self,             # <<<<<<<<<<<<<<
@@ -4860,7 +4915,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
   int __pyx_t_3;
   int __pyx_t_4;
 
-  /* "lightning\impl\dataset_fast.pyx":257
+  /* "lightning\impl\dataset_fast.pyx":264
  *         cdef int n_nz
  * 
  *         for i in xrange(n_obs):             # <<<<<<<<<<<<<<
@@ -4871,7 +4926,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "lightning\impl\dataset_fast.pyx":258
+    /* "lightning\impl\dataset_fast.pyx":265
  * 
  *         for i in xrange(n_obs):
  *             tmp = 0             # <<<<<<<<<<<<<<
@@ -4880,7 +4935,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
  */
     __pyx_v_tmp = 0.0;
 
-    /* "lightning\impl\dataset_fast.pyx":259
+    /* "lightning\impl\dataset_fast.pyx":266
  *         for i in xrange(n_obs):
  *             tmp = 0
  *             self.get_row_ptr(i, &indices, &data, &n_nz)             # <<<<<<<<<<<<<<
@@ -4889,7 +4944,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
  */
     ((struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset *)__pyx_v_self->__pyx_base.__pyx_base.__pyx_vtab)->__pyx_base.get_row_ptr(((struct __pyx_obj_9lightning_4impl_12dataset_fast_RowDataset *)__pyx_v_self), __pyx_v_i, (&__pyx_v_indices), (&__pyx_v_data), (&__pyx_v_n_nz));
 
-    /* "lightning\impl\dataset_fast.pyx":260
+    /* "lightning\impl\dataset_fast.pyx":267
  *             tmp = 0
  *             self.get_row_ptr(i, &indices, &data, &n_nz)
  *             for jj in xrange(n_nz):             # <<<<<<<<<<<<<<
@@ -4900,7 +4955,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
     for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
       __pyx_v_jj = __pyx_t_4;
 
-      /* "lightning\impl\dataset_fast.pyx":261
+      /* "lightning\impl\dataset_fast.pyx":268
  *             self.get_row_ptr(i, &indices, &data, &n_nz)
  *             for jj in xrange(n_nz):
  *                 j = indices[jj]             # <<<<<<<<<<<<<<
@@ -4909,7 +4964,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
  */
       __pyx_v_j = (__pyx_v_indices[__pyx_v_jj]);
 
-      /* "lightning\impl\dataset_fast.pyx":262
+      /* "lightning\impl\dataset_fast.pyx":269
  *             for jj in xrange(n_nz):
  *                 j = indices[jj]
  *                 tmp += coef_ptr[j]             # <<<<<<<<<<<<<<
@@ -4919,7 +4974,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
       __pyx_v_tmp = (__pyx_v_tmp + (__pyx_v_coef_ptr[__pyx_v_j]));
     }
 
-    /* "lightning\impl\dataset_fast.pyx":263
+    /* "lightning\impl\dataset_fast.pyx":270
  *                 j = indices[jj]
  *                 tmp += coef_ptr[j]
  *             result_ptr[i] = tmp             # <<<<<<<<<<<<<<
@@ -4929,7 +4984,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
     (__pyx_v_result_ptr[__pyx_v_i]) = __pyx_v_tmp;
   }
 
-  /* "lightning\impl\dataset_fast.pyx":247
+  /* "lightning\impl\dataset_fast.pyx":254
  *         return result
  * 
  *     cdef void inplace_dot(self,             # <<<<<<<<<<<<<<
@@ -4940,7 +4995,7 @@ static void __pyx_f_9lightning_4impl_12dataset_fast_14EncodedDataset_inplace_dot
   /* function exit code */
 }
 
-/* "lightning\impl\dataset_fast.pyx":269
+/* "lightning\impl\dataset_fast.pyx":275
  * 
  * 
  * def get_dataset(X, order="c"):             # <<<<<<<<<<<<<<
@@ -4985,7 +5040,7 @@ static PyObject *__pyx_pw_9lightning_4impl_12dataset_fast_1get_dataset(PyObject 
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_dataset") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "get_dataset") < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5000,7 +5055,7 @@ static PyObject *__pyx_pw_9lightning_4impl_12dataset_fast_1get_dataset(PyObject 
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("get_dataset", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
+  __Pyx_RaiseArgtupleInvalid("get_dataset", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L3_error;}
   __pyx_L3_error:;
   __Pyx_AddTraceback("lightning.impl.dataset_fast.get_dataset", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
@@ -5030,7 +5085,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
   __Pyx_RefNannySetupContext("get_dataset", 0);
   __Pyx_INCREF(__pyx_v_X);
 
-  /* "lightning\impl\dataset_fast.pyx":270
+  /* "lightning\impl\dataset_fast.pyx":276
  * 
  * def get_dataset(X, order="c"):
  *     if isinstance(X, Dataset):             # <<<<<<<<<<<<<<
@@ -5041,7 +5096,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
   __pyx_t_2 = (__pyx_t_1 != 0);
   if (__pyx_t_2) {
 
-    /* "lightning\impl\dataset_fast.pyx":271
+    /* "lightning\impl\dataset_fast.pyx":277
  * def get_dataset(X, order="c"):
  *     if isinstance(X, Dataset):
  *         return X             # <<<<<<<<<<<<<<
@@ -5053,7 +5108,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
     __pyx_r = __pyx_v_X;
     goto __pyx_L0;
 
-    /* "lightning\impl\dataset_fast.pyx":270
+    /* "lightning\impl\dataset_fast.pyx":276
  * 
  * def get_dataset(X, order="c"):
  *     if isinstance(X, Dataset):             # <<<<<<<<<<<<<<
@@ -5062,16 +5117,16 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
  */
   }
 
-  /* "lightning\impl\dataset_fast.pyx":273
+  /* "lightning\impl\dataset_fast.pyx":279
  *         return X
  * 
  *     if sp.isspmatrix(X):             # <<<<<<<<<<<<<<
  *         if order == "fortran":
  *             X = X.tocsc()
  */
-  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_sp); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_sp); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isspmatrix); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_isspmatrix); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = NULL;
@@ -5085,42 +5140,42 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
     }
   }
   if (!__pyx_t_4) {
-    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_X); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_v_X); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
   } else {
-    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_6 = PyTuple_New(1+1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4); __pyx_t_4 = NULL;
     __Pyx_INCREF(__pyx_v_X);
     __Pyx_GIVEREF(__pyx_v_X);
     PyTuple_SET_ITEM(__pyx_t_6, 0+1, __pyx_v_X);
-    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_6, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     __Pyx_GOTREF(__pyx_t_3);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 273; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_2) {
 
-    /* "lightning\impl\dataset_fast.pyx":274
+    /* "lightning\impl\dataset_fast.pyx":280
  * 
  *     if sp.isspmatrix(X):
  *         if order == "fortran":             # <<<<<<<<<<<<<<
  *             X = X.tocsc()
  *             ds = CSCDataset(X)
  */
-    __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_order, __pyx_n_s_fortran, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 274; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_order, __pyx_n_s_fortran, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 280; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     if (__pyx_t_2) {
 
-      /* "lightning\impl\dataset_fast.pyx":275
+      /* "lightning\impl\dataset_fast.pyx":281
  *     if sp.isspmatrix(X):
  *         if order == "fortran":
  *             X = X.tocsc()             # <<<<<<<<<<<<<<
  *             ds = CSCDataset(X)
  *         else:
  */
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_X, __pyx_n_s_tocsc); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_X, __pyx_n_s_tocsc); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 281; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_6 = NULL;
       if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_5))) {
@@ -5133,35 +5188,35 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
         }
       }
       if (__pyx_t_6) {
-        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_6); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 281; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       } else {
-        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_3 = __Pyx_PyObject_CallNoArg(__pyx_t_5); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 281; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF_SET(__pyx_v_X, __pyx_t_3);
       __pyx_t_3 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":276
+      /* "lightning\impl\dataset_fast.pyx":282
  *         if order == "fortran":
  *             X = X.tocsc()
  *             ds = CSCDataset(X)             # <<<<<<<<<<<<<<
  *         else:
  *             X = X.tocsr()
  */
-      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 276; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_X);
-      __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_CSCDataset), __pyx_t_3, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 276; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_CSCDataset), __pyx_t_3, NULL); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __pyx_v_ds = ((struct __pyx_obj_9lightning_4impl_12dataset_fast_Dataset *)__pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":274
+      /* "lightning\impl\dataset_fast.pyx":280
  * 
  *     if sp.isspmatrix(X):
  *         if order == "fortran":             # <<<<<<<<<<<<<<
@@ -5171,7 +5226,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
       goto __pyx_L5;
     }
 
-    /* "lightning\impl\dataset_fast.pyx":278
+    /* "lightning\impl\dataset_fast.pyx":284
  *             ds = CSCDataset(X)
  *         else:
  *             X = X.tocsr()             # <<<<<<<<<<<<<<
@@ -5179,7 +5234,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
  *     else:
  */
     /*else*/ {
-      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_X, __pyx_n_s_tocsr); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_X, __pyx_n_s_tocsr); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 284; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __pyx_t_6 = NULL;
       if (CYTHON_COMPILING_IN_CPYTHON && likely(PyMethod_Check(__pyx_t_3))) {
@@ -5192,29 +5247,29 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
         }
       }
       if (__pyx_t_6) {
-        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 284; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
         __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       } else {
-        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 278; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+        __pyx_t_5 = __Pyx_PyObject_CallNoArg(__pyx_t_3); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 284; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       }
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_DECREF_SET(__pyx_v_X, __pyx_t_5);
       __pyx_t_5 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":279
+      /* "lightning\impl\dataset_fast.pyx":285
  *         else:
  *             X = X.tocsr()
  *             ds = CSRDataset(X)             # <<<<<<<<<<<<<<
  *     else:
  *         if order == "fortran":
  */
-      __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = PyTuple_New(1); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_v_X);
-      __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_CSRDataset), __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 279; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_CSRDataset), __pyx_t_5, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __pyx_v_ds = ((struct __pyx_obj_9lightning_4impl_12dataset_fast_Dataset *)__pyx_t_3);
@@ -5222,7 +5277,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
     }
     __pyx_L5:;
 
-    /* "lightning\impl\dataset_fast.pyx":273
+    /* "lightning\impl\dataset_fast.pyx":279
  *         return X
  * 
  *     if sp.isspmatrix(X):             # <<<<<<<<<<<<<<
@@ -5232,7 +5287,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
     goto __pyx_L4;
   }
 
-  /* "lightning\impl\dataset_fast.pyx":281
+  /* "lightning\impl\dataset_fast.pyx":287
  *             ds = CSRDataset(X)
  *     else:
  *         if order == "fortran":             # <<<<<<<<<<<<<<
@@ -5240,36 +5295,36 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
  *             ds = FortranDataset(X)
  */
   /*else*/ {
-    __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_order, __pyx_n_s_fortran, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 281; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+    __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_v_order, __pyx_n_s_fortran, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 287; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
     if (__pyx_t_2) {
 
-      /* "lightning\impl\dataset_fast.pyx":282
+      /* "lightning\impl\dataset_fast.pyx":288
  *     else:
  *         if order == "fortran":
  *             X = np.asfortranarray(X, dtype=np.float64)             # <<<<<<<<<<<<<<
  *             ds = FortranDataset(X)
  *         else:
  */
-      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asfortranarray); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_asfortranarray); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_X);
-      __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = PyDict_New(); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_float64); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dtype, __pyx_t_7) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (PyDict_SetItem(__pyx_t_6, __pyx_n_s_dtype, __pyx_t_7) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-      __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 282; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_t_3, __pyx_t_6); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 288; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -5277,25 +5332,25 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
       __Pyx_DECREF_SET(__pyx_v_X, __pyx_t_7);
       __pyx_t_7 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":283
+      /* "lightning\impl\dataset_fast.pyx":289
  *         if order == "fortran":
  *             X = np.asfortranarray(X, dtype=np.float64)
  *             ds = FortranDataset(X)             # <<<<<<<<<<<<<<
  *         else:
  *             X = np.ascontiguousarray(X, dtype=np.float64)
  */
-      __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 289; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_v_X);
-      __pyx_t_6 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_FortranDataset), __pyx_t_7, NULL); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 283; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_FortranDataset), __pyx_t_7, NULL); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 289; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_v_ds = ((struct __pyx_obj_9lightning_4impl_12dataset_fast_Dataset *)__pyx_t_6);
       __pyx_t_6 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":281
+      /* "lightning\impl\dataset_fast.pyx":287
  *             ds = CSRDataset(X)
  *     else:
  *         if order == "fortran":             # <<<<<<<<<<<<<<
@@ -5305,7 +5360,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
       goto __pyx_L6;
     }
 
-    /* "lightning\impl\dataset_fast.pyx":285
+    /* "lightning\impl\dataset_fast.pyx":291
  *             ds = FortranDataset(X)
  *         else:
  *             X = np.ascontiguousarray(X, dtype=np.float64)             # <<<<<<<<<<<<<<
@@ -5313,26 +5368,26 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
  *     return ds
  */
     /*else*/ {
-      __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
-      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_ascontiguousarray); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_6, __pyx_n_s_ascontiguousarray); if (unlikely(!__pyx_t_7)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-      __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_6 = PyTuple_New(1); if (unlikely(!__pyx_t_6)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_v_X);
-      __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = PyDict_New(); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_5 = __Pyx_GetModuleGlobalName(__pyx_n_s_np); if (unlikely(!__pyx_t_5)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_float64); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-      if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_dtype, __pyx_t_4) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 285; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_6, __pyx_t_3); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 291; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
@@ -5340,18 +5395,18 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
       __Pyx_DECREF_SET(__pyx_v_X, __pyx_t_4);
       __pyx_t_4 = 0;
 
-      /* "lightning\impl\dataset_fast.pyx":286
+      /* "lightning\impl\dataset_fast.pyx":292
  *         else:
  *             X = np.ascontiguousarray(X, dtype=np.float64)
  *             ds = ContiguousDataset(X)             # <<<<<<<<<<<<<<
  *     return ds
  */
-      __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 286; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_4 = PyTuple_New(1); if (unlikely(!__pyx_t_4)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_INCREF(__pyx_v_X);
       __Pyx_GIVEREF(__pyx_v_X);
       PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_v_X);
-      __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_ContiguousDataset), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 286; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+      __pyx_t_3 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_9lightning_4impl_12dataset_fast_ContiguousDataset), __pyx_t_4, NULL); if (unlikely(!__pyx_t_3)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 292; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
       __Pyx_GOTREF(__pyx_t_3);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_v_ds = ((struct __pyx_obj_9lightning_4impl_12dataset_fast_Dataset *)__pyx_t_3);
@@ -5361,7 +5416,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
   }
   __pyx_L4:;
 
-  /* "lightning\impl\dataset_fast.pyx":287
+  /* "lightning\impl\dataset_fast.pyx":293
  *             X = np.ascontiguousarray(X, dtype=np.float64)
  *             ds = ContiguousDataset(X)
  *     return ds             # <<<<<<<<<<<<<<
@@ -5371,7 +5426,7 @@ static PyObject *__pyx_pf_9lightning_4impl_12dataset_fast_get_dataset(CYTHON_UNU
   __pyx_r = ((PyObject *)__pyx_v_ds);
   goto __pyx_L0;
 
-  /* "lightning\impl\dataset_fast.pyx":269
+  /* "lightning\impl\dataset_fast.pyx":275
  * 
  * 
  * def get_dataset(X, order="c"):             # <<<<<<<<<<<<<<
@@ -8405,7 +8460,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_get_n_features, __pyx_k_get_n_features, sizeof(__pyx_k_get_n_features), 0, 0, 1, 1},
   {&__pyx_n_s_get_n_samples, __pyx_k_get_n_samples, sizeof(__pyx_k_get_n_samples), 0, 0, 1, 1},
   {&__pyx_n_s_get_row, __pyx_k_get_row, sizeof(__pyx_k_get_row), 0, 0, 1, 1},
-  {&__pyx_kp_s_hello, __pyx_k_hello, sizeof(__pyx_k_hello), 0, 0, 1, 0},
   {&__pyx_n_s_import, __pyx_k_import, sizeof(__pyx_k_import), 0, 0, 1, 1},
   {&__pyx_n_s_indices, __pyx_k_indices, sizeof(__pyx_k_indices), 0, 0, 1, 1},
   {&__pyx_n_s_indptr, __pyx_k_indptr, sizeof(__pyx_k_indptr), 0, 0, 1, 1},
@@ -8427,6 +8481,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_scipy_sparse, __pyx_k_scipy_sparse, sizeof(__pyx_k_scipy_sparse), 0, 0, 1, 1},
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_sp, __pyx_k_sp, sizeof(__pyx_k_sp), 0, 0, 1, 1},
+  {&__pyx_n_s_sub_indexes, __pyx_k_sub_indexes, sizeof(__pyx_k_sub_indexes), 0, 0, 1, 1},
   {&__pyx_n_s_test, __pyx_k_test, sizeof(__pyx_k_test), 0, 0, 1, 1},
   {&__pyx_n_s_tocsc, __pyx_k_tocsc, sizeof(__pyx_k_tocsc), 0, 0, 1, 1},
   {&__pyx_n_s_tocsr, __pyx_k_tocsr, sizeof(__pyx_k_tocsr), 0, 0, 1, 1},
@@ -8440,7 +8495,7 @@ static int __Pyx_InitCachedBuiltins(void) {
   #else
   __pyx_builtin_xrange = __Pyx_GetBuiltinName(__pyx_n_s_xrange); if (!__pyx_builtin_xrange) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 86; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   #endif
-  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 231; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) {__pyx_filename = __pyx_f[1]; __pyx_lineno = 799; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   return 0;
@@ -8452,14 +8507,14 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "lightning\impl\dataset_fast.pyx":241
+  /* "lightning\impl\dataset_fast.pyx":248
  *         coef_ptr = <double*> coef.data
  *         if coef.shape[0]!= self.n_features:
  *             raise ValueError("coef and dataset have different shapes")             # <<<<<<<<<<<<<<
  *         result = np.empty(self.n_samples)
  *         result_ptr = <double*> result.data
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_coef_and_dataset_have_different); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 241; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_s_coef_and_dataset_have_different); if (unlikely(!__pyx_tuple_)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 248; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -8529,17 +8584,17 @@ static int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__7);
   __Pyx_GIVEREF(__pyx_tuple__7);
 
-  /* "lightning\impl\dataset_fast.pyx":269
+  /* "lightning\impl\dataset_fast.pyx":275
  * 
  * 
  * def get_dataset(X, order="c"):             # <<<<<<<<<<<<<<
  *     if isinstance(X, Dataset):
  *         return X
  */
-  __pyx_tuple__9 = PyTuple_Pack(3, __pyx_n_s_X, __pyx_n_s_order, __pyx_n_s_ds); if (unlikely(!__pyx_tuple__9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_tuple__9 = PyTuple_Pack(3, __pyx_n_s_X, __pyx_n_s_order, __pyx_n_s_ds); if (unlikely(!__pyx_tuple__9)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_tuple__9);
   __Pyx_GIVEREF(__pyx_tuple__9);
-  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Documents_M_casotto_Desktop_AX, __pyx_n_s_get_dataset, 269, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_codeobj__10 = (PyObject*)__Pyx_PyCode_New(2, 0, 3, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__9, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_C_Documents_M_casotto_Desktop_AX, __pyx_n_s_get_dataset, 275, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__10)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -8774,16 +8829,16 @@ PyMODINIT_FUNC PyInit_dataset_fast(void)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_sp, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 15; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "lightning\impl\dataset_fast.pyx":269
+  /* "lightning\impl\dataset_fast.pyx":275
  * 
  * 
  * def get_dataset(X, order="c"):             # <<<<<<<<<<<<<<
  *     if isinstance(X, Dataset):
  *         return X
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9lightning_4impl_12dataset_fast_1get_dataset, NULL, __pyx_n_s_lightning_impl_dataset_fast); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_9lightning_4impl_12dataset_fast_1get_dataset, NULL, __pyx_n_s_lightning_impl_dataset_fast); if (unlikely(!__pyx_t_2)) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_dataset, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 269; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_dataset, __pyx_t_2) < 0) {__pyx_filename = __pyx_f[0]; __pyx_lineno = 275; __pyx_clineno = __LINE__; goto __pyx_L1_error;}
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "lightning\impl\dataset_fast.pyx":1
@@ -10784,42 +10839,6 @@ bad:
     if (kwargs != __pyx_print_kwargs)
         Py_XDECREF(kwargs);
     return -1;
-}
-#endif
-
-#if !CYTHON_COMPILING_IN_PYPY && PY_MAJOR_VERSION < 3
-static int __Pyx_PrintOne(PyObject* f, PyObject *o) {
-    if (!f) {
-        if (!(f = __Pyx_GetStdout()))
-            return -1;
-    }
-    Py_INCREF(f);
-    if (PyFile_SoftSpace(f, 0)) {
-        if (PyFile_WriteString(" ", f) < 0)
-            goto error;
-    }
-    if (PyFile_WriteObject(o, f, Py_PRINT_RAW) < 0)
-        goto error;
-    if (PyFile_WriteString("\n", f) < 0)
-        goto error;
-    Py_DECREF(f);
-    return 0;
-error:
-    Py_DECREF(f);
-    return -1;
-    /* the line below is just to avoid C compiler
-     * warnings about unused functions */
-    return __Pyx_Print(f, NULL, 0);
-}
-#else
-static int __Pyx_PrintOne(PyObject* stream, PyObject *o) {
-    int res;
-    PyObject* arg_tuple = PyTuple_Pack(1, o);
-    if (unlikely(!arg_tuple))
-        return -1;
-    res = __Pyx_Print(stream, arg_tuple, 1);
-    Py_DECREF(arg_tuple);
-    return res;
 }
 #endif
 

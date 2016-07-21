@@ -922,6 +922,7 @@ struct __pyx_obj_9lightning_4impl_12dataset_fast_CSCDataset {
 struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset {
   struct __pyx_obj_9lightning_4impl_12dataset_fast_RowDataset __pyx_base;
   int *indices;
+  int *sub_indexes_ptr;
   double *data;
   PyObject *X;
   int n_nz;
