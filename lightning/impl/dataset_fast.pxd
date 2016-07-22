@@ -105,5 +105,7 @@ cdef class EncodedDataset(RowDataset):
                           double* coef_ptr,
                           double* result_ptr,
                           int n_obs) nogil
+                          
+    cpdef get_indexes(self)
 
 

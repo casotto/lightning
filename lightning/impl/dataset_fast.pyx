@@ -261,9 +261,15 @@ cdef class EncodedDataset(RowDataset):
         self.inplace_dot(coef_ptr,result_ptr, self.n_samples)
         return result
 
-
     def get_data(self):
         return self.X
+    
+    cpdef get_indexes(self):
+        cdef np.npy_intp shape[1]
+        shape[0] = <np.npy_intp> self.n_samples
+        sub_indexes = np.PyArray_SimpleNewFromData(1,shape,np.NPY_INT,self.sub_indexes_ptr)
+
+        return sub_indexes
 
     cdef void inplace_dot(self,
                           double* coef_ptr,

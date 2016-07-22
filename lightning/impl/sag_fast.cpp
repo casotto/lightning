@@ -1104,6 +1104,7 @@ static struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_CSCDataset *__pyx
 struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset {
   struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_RowDataset __pyx_base;
   void (*inplace_dot)(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *, double *, double *, int);
+  PyObject *(*get_indexes)(struct __pyx_obj_9lightning_4impl_12dataset_fast_EncodedDataset *, int __pyx_skip_dispatch);
 };
 static struct __pyx_vtabstruct_9lightning_4impl_12dataset_fast_EncodedDataset *__pyx_vtabptr_9lightning_4impl_12dataset_fast_EncodedDataset;
 
