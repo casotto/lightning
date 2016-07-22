@@ -261,6 +261,10 @@ cdef class EncodedDataset(RowDataset):
         self.inplace_dot(coef_ptr,result_ptr, self.n_samples)
         return result
 
+
+    def get_data(self):
+        return self.X
+
     cdef void inplace_dot(self,
                           double* coef_ptr,
                           double* result_ptr,
