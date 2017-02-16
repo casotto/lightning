@@ -9,7 +9,7 @@ cdef class Penalty:
     # projection will be used and not projection_lagged
     cdef bint support_lagged
 
-    cdef void projection(self,
+    cdef int projection(self,
                          double* w,
                          int* indices,
                          double stepsize,

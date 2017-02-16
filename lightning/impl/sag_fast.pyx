@@ -26,7 +26,7 @@ cdef inline double fmax(double a, double b) nogil:
 
 cdef class Penalty:
 
-    cdef void projection(self,
+    cdef int projection(self,
                          double* w,
                          int* indices,
                          double stepsize,
@@ -55,7 +55,7 @@ cdef class L1Penalty(Penalty):
     def __cinit__(self):
         self.support_lagged = True
 
-    cdef void projection(self,
+    cdef int projection(self,
                          double* w,
                          int* indices,
                          double stepsize,
