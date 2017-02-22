@@ -13,7 +13,7 @@ cdef class Penalty:
                          double* w,
                          int* indices,
                          double stepsize,
-                         int n_nz)
+                         int n_nz) except -1
 
     cdef void projection_lagged(self,
                                 int t,

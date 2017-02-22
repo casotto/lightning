@@ -30,7 +30,7 @@ cdef class Penalty:
                          double* w,
                          int* indices,
                          double stepsize,
-                         int n_nz):
+                         int n_nz) except -1:
         raise NotImplementedError()
     
     cdef void projection_lagged(self,
@@ -59,7 +59,7 @@ cdef class L1Penalty(Penalty):
                          double* w,
                          int* indices,
                          double stepsize,
-                         int n_nz):
+                         int n_nz) except -1:
 
         cdef int j, jj
 
